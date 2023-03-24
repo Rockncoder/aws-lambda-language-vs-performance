@@ -1,0 +1,36 @@
+service: python-lambda
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  stage: dev
+  region: us-west-2
+  environment:
+    DB_NAME: "newDB"
+    COLLECTION_NAME: "vehicles"
+    DOCUMENT_LIMIT: '100'
+
+custom:
+  serverlessSsmFetch:
+    CONNECTION_STRING: /lambda_test/connection_string~true
+
+functions:
+  healthcheck:
+    handler: handler.healthcheck
+    events:
+      - httpApi:
+          path: /healthcheck
+          method: get
+  vehicles:
+      handler: vehicles/vehicles.main
+      ssmToEnvironment:
+        - CONNECTION_STRING
+      events:
+        - httpApi:
+            path: /vehicles
+            method: get
+
+plugins:
+  - serverless-python-requirements
+  - serverless-ssm-fetch

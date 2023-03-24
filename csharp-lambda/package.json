@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "serverless-ssm-fetch": "^2.0.0"
+  }
+}

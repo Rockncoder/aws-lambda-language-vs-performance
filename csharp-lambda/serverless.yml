@@ -1,0 +1,42 @@
+service: csharp-lambda
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: dotnet6
+  stage: dev
+  region: us-west-2
+  environment:
+    DB_NAME: 'newDB'
+    COLLECTION_NAME: 'vehicles'
+    DOCUMENT_LIMIT: '100'
+
+package:
+  individually: true
+
+custom:
+  serverlessSsmFetch:
+    CONNECTION_STRING: /lambda_test/connection_string~true
+
+functions:
+  healthcheck:
+    handler: CsharpHandlers::AwsDotnetCsharp.Handler::HealthCheck
+    events:
+      - httpApi:
+          path: /healthcheck
+          method: get
+  vehicles:
+    handler: CsharpHandlers::AwsDotnetCsharp.VehicleHandler::Vehicles
+    ssmToEnvironment:
+      - CONNECTION_STRING
+    events:
+      - httpApi:
+          path: /vehicles
+          method: get
+
+    # you can add packaging information here
+    package:
+      artifact: bin/Release/net6.0/csharp.zip
+
+plugins:
+  - serverless-ssm-fetch

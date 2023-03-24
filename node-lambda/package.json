@@ -1,0 +1,10 @@
+{
+    "name": "node-lambda",
+    "version": "1.0.0",
+    "dependencies": {
+        "mongodb": "latest"
+    },
+    "devDependencies": {
+        "serverless-ssm-fetch": "^2.0.0"
+    }
+}

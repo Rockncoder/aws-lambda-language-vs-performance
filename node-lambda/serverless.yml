@@ -1,0 +1,36 @@
+service: node-lambda
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-west-2
+  architecture: arm64
+  environment:
+    DB_NAME: "newDB"
+    COLLECTION_NAME: "vehicles"
+    DOCUMENT_LIMIT: '100'
+
+custom:
+  serverlessSsmFetch:
+    CONNECTION_STRING: /lambda_test/connection_string~true
+
+functions:
+  healthCheck:
+    handler: healthCheck.healthCheck
+    events:
+      - httpApi:
+          path: /healthcheck
+          method: get
+  vehicles:
+    handler: vehicles/handler.vehicles
+    ssmToEnvironment:
+      - CONNECTION_STRING
+    events:
+      - httpApi:
+          path: /vehicles
+          method: get
+
+plugins:
+  - serverless-ssm-fetch
