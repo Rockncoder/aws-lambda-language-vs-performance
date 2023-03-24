@@ -15,6 +15,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
     <PackageReference Include="MongoDB.Bson" Version="2.19.0" />
     <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.104.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
   </ItemGroup>
 
   <ItemGroup>

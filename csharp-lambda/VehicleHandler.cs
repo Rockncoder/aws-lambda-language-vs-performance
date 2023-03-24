@@ -3,31 +3,25 @@ namespace AwsDotnetCsharp;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Amazon.SimpleSystemsManagement;
-using Amazon.SimpleSystemsManagement.Model;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization;
+using System.Text.Json;
 
 #nullable enable
 
 [BsonIgnoreExtraElements]
 public class Vehicle
 {
-    public ObjectId Id { get; set; }
-    [BsonElement("id")]
-    public int? VehicleId { get; set; }
     [BsonElement("make")]
     public string? Make { get; set; }
     [BsonElement("model")]
     public string? Model { get; set; }
     [BsonElement("year")]
     public int? Year { get; set; }
-    [BsonElement("UCity")]
-    public double? CityMileage { get; set; }
-    [BsonElement("UHighway")]
-    public double? HighwayMileage { get; set; }
-    [BsonElement("VClass")]
-    public string? VehicleClass { get; set; }
+
+    public override string ToString()
+    {
+        return $"year: {Year}, make: {Make}, model: {Model}";
+    }
 }
 
 public class VehicleHandler
@@ -48,7 +42,7 @@ public class VehicleHandler
     {
         string dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "";
         string collectionName = Environment.GetEnvironmentVariable("COLLECTION_NAME") ?? "";
-        int documentLimit = Int32.Parse(Environment.GetEnvironmentVariable("COLLECTION_NAME") ?? "50");
+        int documentLimit = Int32.Parse(s: (Environment.GetEnvironmentVariable("DOCUMENT_LIMIT") ?? "50"));
 
         if (Client != null)
         {
@@ -56,13 +50,13 @@ public class VehicleHandler
             {
                 var database = Client.GetDatabase(dbName);
                 var collection = database.GetCollection<Vehicle>(collectionName);
-                var result = collection.Find<Vehicle>(FilterDefinition<Vehicle>.Empty)
-                .Project(Builders<Vehicle>.Projection.Exclude(car => car.Id))
-                .Limit(documentLimit).ToList();
-                Console.WriteLine(result.ToString());
-                return new Response(result.ToString(), request);
+                var documents = collection.Find(new BsonDocument()).Limit(documentLimit).ToList();
+
+                string jsonString = JsonSerializer.Serialize(documents);
+                Console.WriteLine(jsonString);
+                return new Response(jsonString, request);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return new Response("Handling failed", request);
