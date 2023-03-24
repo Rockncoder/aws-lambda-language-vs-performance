@@ -51,15 +51,12 @@ public class VehicleHandler
                 var database = Client.GetDatabase(dbName);
                 var collection = database.GetCollection<Vehicle>(collectionName);
                 var documents = collection.Find(new BsonDocument()).Limit(documentLimit).ToList();
-
-                string jsonString = JsonSerializer.Serialize(documents);
-                Console.WriteLine(jsonString);
-                return new Response(jsonString, request);
+                return new Response(JsonSerializer.Serialize(documents), request);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new Response("Handling failed", request);
+                return new Response(ex.Message, request);
             }
         }
         else
